@@ -9,6 +9,9 @@ const layoutTitle = document.getElementById("layoutTitle");
 const status = document.getElementById("status");
 
 let state = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{"layout":"normal","slots":[]}');
+if(!Array.isArray(state.slots)) state.slots = [];
+while(state.slots.length < 9) state.slots.push(null);
+state.slots = state.slots.slice(0,9);
 let activeFilter = "all";
 let dragging = null;
 let touchDrag = null;
@@ -16,14 +19,14 @@ let touchDrag = null;
 const layoutNames = {
   normal: "Normal · 3×3",
   circle: "Circular · 3×3",
-  long: "2×8 + 1",
+  long: "2×4 + 1",
   pyramid: "Pirámide"
 };
 
 // Índice de la celda especial reservada para la carta de Torre en cada layout.
 function towerSpotIndex(layout){
   if(layout==="normal" || layout==="circle") return 4;      // centro de la cuadrícula 3×3
-  if(layout==="long") return 16;                             // el único elemento debajo del 2×8
+  if(layout==="long") return 8;                              // el único elemento debajo de las 2 filas de 4
   if(layout==="pyramid") return 8;                            // la punta inferior de la pirámide
   return -1;
 }
@@ -141,7 +144,7 @@ function wireDrag(node, card, source){
 }
 
 function createCells(layout){
-  const count = layout==="long" ? 17 : layout==="pyramid" ? 9 : 9;
+  const count = 9;
   const towerIdx = towerSpotIndex(layout);
   board.innerHTML="";
   for(let i=0;i<count;i++){
@@ -177,19 +180,19 @@ function applyLayout(layout){
     const transforms={1:"translateY(-20px)",3:"translateX(-20px)",5:"translateX(20px)",7:"translateY(20px)"};
     [...board.children].forEach((c,i)=>c.style.transform=transforms[i]||"");
   } else if(layout==="long"){
-    board.style.gridTemplateColumns="repeat(8,var(--card-w))";
+    board.style.gridTemplateColumns="repeat(4,var(--card-w))";
     board.style.gridTemplateRows="repeat(3,var(--card-h))";
-    // Coloca explícitamente las 16 primeras cartas en 2 filas de 8...
+    // Coloca explícitamente las 8 cartas normales en 2 filas de 4...
     [...board.children].forEach((c,i)=>{
       c.style.transform="";
-      if(i<16){
-        c.style.gridRow = String(Math.floor(i/8)+1);
-        c.style.gridColumn = String((i%8)+1);
+      if(i<8){
+        c.style.gridRow = String(Math.floor(i/4)+1);
+        c.style.gridColumn = String((i%4)+1);
       }
     });
-    // ...y la 17ª como único elemento centrado en la fila de abajo.
-    board.children[16].style.gridRow="3";
-    board.children[16].style.gridColumn="4 / span 2";
+    // ...y la carta de Torre centrada, sola, en la fila de abajo.
+    board.children[8].style.gridRow="3";
+    board.children[8].style.gridColumn="2 / span 2";
   } else if(layout==="pyramid"){
     board.style.gridTemplateColumns="repeat(5,var(--card-w))";
     board.style.gridTemplateRows="repeat(3,var(--card-h))";
@@ -257,7 +260,7 @@ function removeSlug(slug){
 
 function setLayout(layout){
   state.layout=layout;
-  const size = layout==="long" ? 17 : 9;
+  const size = 9;
   const old = state.slots.slice(0,size);
   while(old.length<size) old.push(null);
   state.slots=old;
@@ -283,7 +286,7 @@ search.addEventListener("input",renderSidebar);
 document.querySelectorAll("[data-layout]").forEach(b=>b.addEventListener("click",()=>setLayout(b.dataset.layout)));
 
 document.getElementById("clear").addEventListener("click",()=>{
-  state.slots = Array(state.layout==="long"?17:9).fill(null);
+  state.slots = Array(9).fill(null);
   save(); renderSlots(); toastMsg("Tablero limpiado");
 });
 

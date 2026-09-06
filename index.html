@@ -35,9 +35,18 @@
                     <button class="layout-btn" data-layout="circle">Circular</button>
                     <button class="layout-btn" data-layout="long">2×4</button>
                     <button class="layout-btn" data-layout="pyramid">Pirámide</button>
-                    <button id="clear">Limpiar tablero</button>
+                    <button id="exportImg" class="export-btn" disabled title="Selecciona un mazo guardado para exportarlo">Exportar imagen</button>
+                    <button id="clear" class="danger">Limpiar tablero</button>
                 </div>
             </div>
+
+            <section class="deck-panel">
+                <div class="deck-panel-head">
+                    <strong>Mazos guardados</strong>
+                    <button id="newDeck" class="deck-new-btn" title="Guarda el tablero actual como un mazo nuevo">+ Guardar mazo</button>
+                </div>
+                <div id="deckList" class="deck-list"></div>
+            </section>
 
             <section class="board-wrap">
                 <div id="board" class="board"></div>
@@ -51,6 +60,7 @@
     </div>
     <div id="toast" class="toast"></div>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="script.js"></script>
 </body>
 

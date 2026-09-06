@@ -16,10 +16,17 @@ let activeFilter = "all";
 let dragging = null;
 let touchDrag = null;
 
+// --- Mazos guardados ---------------------------------------------------
+const DECKS_KEY = "cr-saved-decks-v1";
+let decksState = JSON.parse(localStorage.getItem(DECKS_KEY) || '{"nextNumber":1,"decks":[]}');
+if(!Array.isArray(decksState.decks)) decksState.decks = [];
+if(typeof decksState.nextNumber !== "number") decksState.nextNumber = decksState.decks.length + 1;
+let selectedDeckId = null;
+
 const layoutNames = {
   normal: "Normal · 3×3",
   circle: "Circular · 3×3",
-  long: "2×4 + 1",
+  long: "2×4",
   pyramid: "Pirámide"
 };
 
@@ -244,8 +251,10 @@ function placeIntoCell(cell, card, source, node){
   if(from>=0) state.slots[from] = displaced;
   state.slots[idx] = card.slug;
 
+  selectedDeckId = null;
   save();
   renderSlots();
+  renderDeckList();
   toastMsg(card.name + " colocada");
 }
 
@@ -253,8 +262,10 @@ function removeSlug(slug){
   const i=state.slots.indexOf(slug);
   if(i>=0){
     state.slots[i]=null;
+    selectedDeckId = null;
     save();
     renderSlots();
+    renderDeckList();
   }
 }
 
@@ -266,7 +277,9 @@ function setLayout(layout){
   state.slots=old;
   createCells(layout);
   updateLayoutButtons();
+  selectedDeckId = null;
   save();
+  renderDeckList();
 }
 
 function updateLayoutButtons(){
@@ -274,6 +287,117 @@ function updateLayoutButtons(){
     b.classList.toggle("active", b.dataset.layout === state.layout);
   });
 }
+
+function saveDecks(){
+  localStorage.setItem(DECKS_KEY, JSON.stringify(decksState));
+}
+
+function createDeckFromBoard(){
+  if(!state.slots.some(Boolean)){
+    toastMsg("Agrega al menos una carta antes de guardar el mazo");
+    return;
+  }
+  const deck = {
+    id: "d" + Date.now().toString(36) + Math.random().toString(36).slice(2,6),
+    name: "Mazo " + decksState.nextNumber,
+    layout: state.layout,
+    slots: state.slots.slice()
+  };
+  decksState.nextNumber += 1;
+  decksState.decks.push(deck);
+  saveDecks();
+  selectedDeckId = deck.id;
+  renderDeckList();
+  toastMsg(deck.name + " guardado");
+}
+
+function selectDeck(id){
+  const deck = decksState.decks.find(d=>d.id===id);
+  if(!deck) return;
+  state.layout = deck.layout;
+  state.slots = deck.slots.slice();
+  while(state.slots.length < 9) state.slots.push(null);
+  state.slots = state.slots.slice(0,9);
+  createCells(state.layout);
+  updateLayoutButtons();
+  save();
+  selectedDeckId = id;
+  renderDeckList();
+  toastMsg(deck.name + " cargado en el tablero");
+}
+
+function deleteDeck(id, evt){
+  evt.stopPropagation();
+  const deck = decksState.decks.find(d=>d.id===id);
+  if(!deck) return;
+  if(!confirm('¿Eliminar "' + deck.name + '"? Esta acción no se puede deshacer.')) return;
+  decksState.decks = decksState.decks.filter(d=>d.id!==id);
+  if(selectedDeckId===id) selectedDeckId = null;
+  saveDecks();
+  renderDeckList();
+  toastMsg(deck.name + " eliminado");
+}
+
+function renderDeckList(){
+  const list = document.getElementById("deckList");
+  list.innerHTML = "";
+  decksState.decks.forEach(deck=>{
+    const chip = document.createElement("div");
+    chip.className = "deck-chip" + (deck.id===selectedDeckId ? " active" : "");
+    chip.title = "Cargar " + deck.name + " en el tablero";
+    chip.addEventListener("click", ()=>selectDeck(deck.id));
+
+    const name = document.createElement("span");
+    name.className = "deck-chip-name";
+    name.textContent = deck.name;
+    chip.appendChild(name);
+
+    const del = document.createElement("button");
+    del.className = "deck-chip-del";
+    del.textContent = "×";
+    del.title = "Eliminar " + deck.name;
+    del.addEventListener("click", e=>deleteDeck(deck.id, e));
+    chip.appendChild(del);
+
+    list.appendChild(chip);
+  });
+  const exportBtn = document.getElementById("exportImg");
+  if(exportBtn) exportBtn.disabled = !selectedDeckId;
+}
+
+async function exportSelectedDeckAsImage(){
+  if(!selectedDeckId){
+    toastMsg("Selecciona un mazo guardado para exportarlo");
+    return;
+  }
+  const deck = decksState.decks.find(d=>d.id===selectedDeckId);
+  if(!deck){
+    toastMsg("Ese mazo ya no existe");
+    return;
+  }
+  if(typeof html2canvas === "undefined"){
+    toastMsg("No se pudo cargar la herramienta de exportación");
+    return;
+  }
+  toastMsg("Generando imagen…");
+  board.classList.add("exporting");
+  try{
+    const canvas = await html2canvas(board, {backgroundColor:"#ffffff", useCORS:true, scale:2});
+    const link = document.createElement("a");
+    link.download = deck.name.toLowerCase().replace(/\s+/g,"-") + ".png";
+    link.href = canvas.toDataURL("image/png");
+    link.click();
+    toastMsg(deck.name + " exportado como imagen");
+  }catch(err){
+    console.error(err);
+    toastMsg("No se pudo exportar la imagen");
+  }finally{
+    board.classList.remove("exporting");
+  }
+}
+
+document.getElementById("newDeck").addEventListener("click", createDeckFromBoard);
+document.getElementById("exportImg").addEventListener("click", exportSelectedDeckAsImage);
 
 document.querySelectorAll(".filter").forEach(b=>b.addEventListener("click",()=>{
   document.querySelectorAll(".filter").forEach(x=>x.classList.remove("active"));
@@ -287,9 +411,11 @@ document.querySelectorAll("[data-layout]").forEach(b=>b.addEventListener("click"
 
 document.getElementById("clear").addEventListener("click",()=>{
   state.slots = Array(9).fill(null);
-  save(); renderSlots(); toastMsg("Tablero limpiado");
+  selectedDeckId = null;
+  save(); renderSlots(); renderDeckList(); toastMsg("Tablero limpiado");
 });
 
 createCells(state.layout || "normal");
 updateLayoutButtons();
 renderSidebar();
+renderDeckList();

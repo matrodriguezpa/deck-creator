@@ -1,6 +1,6 @@
 :root{
   --bg:#f4f5f8;--panel:#fff;--text:#1d2330;--muted:#697386;--border:#dfe3ea;
-  --accent:#7357ff;--shadow:0 14px 40px rgba(22,28,45,.11);
+  --accent:#7357ff;--accent-soft:#f1eeff;--shadow:0 14px 40px rgba(22,28,45,.11);
   --card-w:92px;--card-h:114px;
 }
 *{box-sizing:border-box}
@@ -17,22 +17,34 @@ button{cursor:pointer}
 .filter{border:1px solid #394052;background:#232937;color:#cfd5e0;border-radius:999px;padding:6px 9px;font-size:12px}
 .filter.active{background:var(--accent);border-color:var(--accent);color:#fff}
 .side-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
-.side-card{border:1px solid #343b4a;border-radius:9px;overflow:hidden;background:#232937;aspect-ratio:150/180;touch-action:none}
-.side-card img{display:block;width:100%;height:100%;object-fit:cover}
+.side-card{border:1px solid #343b4a;border-radius:9px;overflow:hidden;background:#232937;aspect-ratio:150/180;touch-action:none;position:relative}
+.side-card img{display:block;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .25s ease}
+.side-card.loaded img{opacity:1}
 .side-card .label{display:none}
 .main{padding:18px;min-width:0}
 .toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:14px}
 .actions{display:flex;gap:8px;flex-wrap:wrap}
 .actions button{border:1px solid var(--border);background:var(--panel);border-radius:10px;padding:9px 12px}
-.actions .primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+.actions .layout-btn{transition:background .15s ease,color .15s ease,border-color .15s ease}
+.actions .layout-btn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
 .status{font-size:13px;color:var(--muted)}
-.board-wrap{background:var(--panel);border:1px solid var(--border);border-radius:18px;box-shadow:var(--shadow);padding:18px;overflow:auto}
-.board{margin:auto;display:grid;gap:12px;justify-content:center;align-content:center}
+.board-wrap{background:var(--panel);border:1px solid var(--border);border-radius:18px;box-shadow:var(--shadow);padding:18px;overflow:auto;height:800px}
+.board{margin:50px auto;display:grid;gap:12px;justify-content:center;align-content:center}
 .cell{width:var(--card-w);height:var(--card-h);border:2px dashed #cdd2dc;border-radius:12px;background:#fafbfc;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;touch-action:none}
-.cell.dragover{border-color:var(--accent);background:#f1eeff}
+.cell.dragover{border-color:var(--accent);background:var(--accent-soft)}
+.cell.tower-spot{border-style:solid;border-color:var(--accent);background:linear-gradient(180deg,var(--accent-soft),#fafbfc)}
+.cell.tower-spot.dragover{background:var(--accent-soft)}
+.tower-hint{display:flex;flex-direction:column;align-items:center;gap:3px;color:var(--accent);font-size:20px;opacity:.55;pointer-events:none}
+.tower-hint span{font-size:10px;font-weight:700}
+.img-loader{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
+.side-card.loaded .img-loader,.card.loaded .img-loader{display:none}
+.img-loader::after{content:"";width:18px;height:18px;border-radius:50%;border:2px solid rgba(0,0,0,.12);border-top-color:var(--accent);animation:spin .7s linear infinite}
+.side-card .img-loader::after{border-color:rgba(255,255,255,.18);border-top-color:var(--accent)}
+@keyframes spin{to{transform:rotate(360deg)}}
 .card{width:100%;height:100%;position:relative;touch-action:none;cursor:grab}
 .card.dragging{opacity:.55}
-.card img{width:100%;height:100%;object-fit:cover;display:block}
+.card img{width:100%;height:100%;object-fit:cover;display:block;opacity:0;transition:opacity .25s ease}
+.card.loaded img{opacity:1}
 .card .remove{position:absolute;right:4px;top:4px;width:24px;height:24px;border:0;border-radius:50%;background:rgba(0,0,0,.65);color:#fff;line-height:24px;padding:0}
 .card .name{position:absolute;left:4px;right:4px;bottom:4px;background:rgba(0,0,0,.65);color:#fff;border-radius:8px;padding:4px 5px;font-size:9px;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .footer{margin-top:10px;color:var(--muted);font-size:12px;line-height:1.45}
@@ -42,4 +54,5 @@ button{cursor:pointer}
   .sidebar{height:38vh;position:relative}
   .side-grid{grid-template-columns:repeat(6,1fr)}
   .main{padding:10px}
+  .board-wrap{height:auto}
 }

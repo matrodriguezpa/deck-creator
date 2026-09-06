@@ -20,6 +20,14 @@ const layoutNames = {
   pyramid: "Pirámide"
 };
 
+// Índice de la celda especial reservada para la carta de Torre en cada layout.
+function towerSpotIndex(layout){
+  if(layout==="normal" || layout==="circle") return 4;      // centro de la cuadrícula 3×3
+  if(layout==="long") return 16;                             // el único elemento debajo del 2×8
+  if(layout==="pyramid") return 8;                            // la punta inferior de la pirámide
+  return -1;
+}
+
 function save(){
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
   status.textContent = "Guardado automáticamente en localStorage.";
@@ -71,13 +79,19 @@ function makeCard(card, source="sidebar"){
   const wrap = document.createElement("div");
   wrap.className = source==="sidebar" ? "side-card" : "card";
   wrap.dataset.slug = card.slug;
+
+  const loader = document.createElement("div");
+  loader.className = "img-loader";
+  wrap.appendChild(loader);
+
   const img = document.createElement("img");
   img.src = artUrl(card);
   img.alt = card.name;
   img.loading = "lazy";
   img.crossOrigin = "anonymous";
   //img.referrerPolicy = "no-referrer";
-  img.onerror = ()=>{ img.remove(); wrap.style.background="linear-gradient(135deg,#30364a,#171b25)"; };
+  img.onload = ()=>{ wrap.classList.add("loaded"); };
+  img.onerror = ()=>{ img.remove(); loader.remove(); wrap.style.background="linear-gradient(135deg,#30364a,#171b25)"; };
   wrap.appendChild(img);
 
   if(source==="board"){
@@ -128,10 +142,11 @@ function wireDrag(node, card, source){
 
 function createCells(layout){
   const count = layout==="long" ? 17 : layout==="pyramid" ? 9 : 9;
+  const towerIdx = towerSpotIndex(layout);
   board.innerHTML="";
   for(let i=0;i<count;i++){
     const cell=document.createElement("div");
-    cell.className="cell";
+    cell.className = "cell" + (i===towerIdx ? " tower-spot" : "");
     cell.dataset.index=i;
     board.appendChild(cell);
     ["dragover","drop"].forEach(evt=>{
@@ -164,7 +179,16 @@ function applyLayout(layout){
   } else if(layout==="long"){
     board.style.gridTemplateColumns="repeat(8,var(--card-w))";
     board.style.gridTemplateRows="repeat(3,var(--card-h))";
-    [...board.children].forEach((c,i)=>{c.style.transform=""; c.style.gridColumn="auto";});
+    // Coloca explícitamente las 16 primeras cartas en 2 filas de 8...
+    [...board.children].forEach((c,i)=>{
+      c.style.transform="";
+      if(i<16){
+        c.style.gridRow = String(Math.floor(i/8)+1);
+        c.style.gridColumn = String((i%8)+1);
+      }
+    });
+    // ...y la 17ª como único elemento centrado en la fila de abajo.
+    board.children[16].style.gridRow="3";
     board.children[16].style.gridColumn="4 / span 2";
   } else if(layout==="pyramid"){
     board.style.gridTemplateColumns="repeat(5,var(--card-w))";
@@ -185,6 +209,14 @@ function renderSlots(){
     const card=CARDS.find(c=>c.slug===slug);
     if(card) board.children[i].appendChild(makeCard(card,"board"));
   });
+  [...board.children].forEach(c=>{
+    if(c.classList.contains("tower-spot") && !c.children.length){
+      const hint=document.createElement("div");
+      hint.className="tower-hint";
+      hint.innerHTML="🏰<span>Torre</span>";
+      c.appendChild(hint);
+    }
+  });
   layoutTitle.textContent=layoutNames[state.layout];
 }
 
@@ -195,6 +227,12 @@ function renderSidebar(){
 
 function placeIntoCell(cell, card, source, node){
   const idx=Number(cell.dataset.index);
+
+  if(cell.classList.contains("tower-spot") && category(card)!=="tower"){
+    toastMsg("Ese espacio es solo para cartas de Torre");
+    return;
+  }
+
   const from = state.slots.indexOf(card.slug);
 
   if(from===idx) return;
@@ -224,7 +262,14 @@ function setLayout(layout){
   while(old.length<size) old.push(null);
   state.slots=old;
   createCells(layout);
+  updateLayoutButtons();
   save();
+}
+
+function updateLayoutButtons(){
+  document.querySelectorAll(".layout-btn").forEach(b=>{
+    b.classList.toggle("active", b.dataset.layout === state.layout);
+  });
 }
 
 document.querySelectorAll(".filter").forEach(b=>b.addEventListener("click",()=>{
@@ -243,4 +288,5 @@ document.getElementById("clear").addEventListener("click",()=>{
 });
 
 createCells(state.layout || "normal");
+updateLayoutButtons();
 renderSidebar();

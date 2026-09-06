@@ -1,34 +1,56 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
 
 <head>
-    <meta charset="UTF-8" />
-    <title>Grid Cartas Dinámico</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Clash Royale — Card Grid</title>
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
+    <div class="app">
+        <aside class="sidebar">
+            <div class="brand">Cartas de Clash Royale</div>
+            <div class="small">Snapshot de RoyaleAPI · Ranked · 7d · Rating</div>
+            <div class="search"><input id="search" placeholder="Buscar carta…"></div>
+            <div class="filters">
+                <button class="filter active" data-filter="all">Todas</button>
+                <button class="filter" data-filter="hero">Héroes</button>
+                <button class="filter" data-filter="evo">Evos</button>
+                <button class="filter" data-filter="tower">Torres</button>
+                <button class="filter" data-filter="spell">Hechizos</button>
+            </div>
+            <div id="sideGrid" class="side-grid"></div>
+        </aside>
 
-    <div class="sidebar">
-        <h3>Torres</h3>
-        <div class="card-list" data-folder="torres"></div>
-        <h3>Héroes</h3>
-        <div class="card-list" data-folder="heroes"></div>
-        <h3>Evos</h3>
-        <div class="card-list" data-folder="evos"></div>
-        <h3>Normales</h3>
-        <div class="card-list" data-folder="normales"></div>
-    </div>
+        <main class="main">
+            <div class="toolbar">
+                <div>
+                    <strong id="layoutTitle">Normal · 3×3</strong>
+                    <div class="status" id="status">Arrastra cartas al tablero. Se guardan en localStorage.</div>
+                </div>
+                <div class="actions">
+                    <button class="primary" data-layout="normal">Normal</button>
+                    <button data-layout="circle">Circular</button>
+                    <button data-layout="long">2×8 + 1</button>
+                    <button data-layout="pyramid">Pirámide</button>
+                    <button id="clear">Limpiar tablero</button>
+                </div>
+            </div>
 
-    <div class="main">
-        <div class="controls">
-            <button onclick="setLayout('normal')">Normal</button>
-            <button onclick="setLayout('circle')">Circular</button>
-            <button onclick="setLayout('long')">2x8 + centro</button>
-            <button onclick="setLayout('pyramid')">Pirámide</button>
-        </div>
-        <div class="grid normal" id="grid"></div>
+            <section class="board-wrap">
+                <div id="board" class="board"></div>
+                <div class="footer">
+                    Diseño estático: no utiliza la API de Clash Royale. La lista de cartas está embebida en esta página
+                    y las imágenes se cargan desde el CDN público de RoyaleAPI.
+                    La página usa como referencia el listado
+                    <code>royaleapi.com/cards/popular?time=7d&amp;cat=Ranked&amp;sort=rating&amp;mode=mini_grid</code>.
+                </div>
+            </section>
+        </main>
     </div>
+    <div id="toast" class="toast"></div>
 
     <script src="script.js"></script>
 </body>

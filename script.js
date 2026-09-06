@@ -63,7 +63,7 @@ function makeCard(card, source="sidebar"){
   img.src = artUrl(card);
   img.alt = card.name;
   img.loading = "lazy";
-  img.referrerPolicy = "no-referrer";
+  //img.referrerPolicy = "no-referrer";
   img.onerror = ()=>{ img.remove(); wrap.style.background="linear-gradient(135deg,#30364a,#171b25)"; };
   wrap.appendChild(img);
 

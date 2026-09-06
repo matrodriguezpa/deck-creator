@@ -32,8 +32,20 @@ function toastMsg(msg){
   window.__toast = setTimeout(()=>toast.style.display="none",1700);
 }
 
+// RoyaleAPI nombra los assets de forma distinta a como uno esperaría:
+// - Héroes:    "hero-tombstone"      -> archivo real "tombstone-hero"
+// - Evoluciones: "battle-ram-evolution" -> archivo real "battle-ram-ev1"
+// Esto solo afecta el nombre de archivo de la imagen; el "slug" que usamos
+// para el estado, el dataset y localStorage se deja intacto.
+function artSlug(card){
+  const s = card.slug;
+  if (s.startsWith("hero-")) return s.slice(5) + "-hero";
+  if (s.endsWith("-evolution")) return s.slice(0, -"-evolution".length) + "-ev1";
+  return s;
+}
+
 function artUrl(card){
-  return "https://cdn.royaleapi.com/static/img/cards-150/" + card.slug + ".png";
+  return "https://cdn.royaleapi.com/static/img/cards-150/" + artSlug(card) + ".png";
 }
 
 function category(card){

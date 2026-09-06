@@ -198,8 +198,8 @@ function applyLayout(layout){
       }
     });
     // ...y la carta de Torre centrada, sola, en la fila de abajo.
-    board.children[8].style.gridRow="3";
-    board.children[8].style.gridColumn="2 / span 2";
+    //board.children[8].style.gridRow="3";
+    //board.children[8].style.gridColumn="2 / span 2";
   } else if(layout==="pyramid"){
     board.style.gridTemplateColumns="repeat(5,var(--card-w))";
     board.style.gridTemplateRows="repeat(3,var(--card-h))";

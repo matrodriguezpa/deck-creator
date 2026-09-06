@@ -1,0 +1,28 @@
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial;background:#f2f2f2;display:flex;height:100vh}
+.sidebar{width:220px;background:#1e1e2f;color:#fff;padding:12px;overflow-y:auto}
+.sidebar h3{font-size:15px;border-bottom:1px solid #444;padding-bottom:4px}
+.card-list{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:12px}
+.card-list img{width:100%;border-radius:8px;cursor:grab}
+.main{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px}
+.controls{display:flex;gap:8px}
+button{padding:6px 10px;border:none;border-radius:6px;cursor:pointer}
+.grid{display:grid;gap:16px;transition:.3s}
+.cell{width:120px;height:160px;background:#fff;border:2px dashed #bbb;border-radius:14px;display:flex;align-items:center;justify-content:center}
+.cell img{width:100%;height:100%;object-fit:cover;border-radius:12px}
+
+/* Layouts */
+.grid.normal{grid-template-columns:repeat(3,120px)}
+
+.grid.circle{grid-template-columns:repeat(3,120px)}
+.grid.circle .cell:nth-child(2){transform:translateY(-20px)}
+.grid.circle .cell:nth-child(4){transform:translateX(-20px)}
+.grid.circle .cell:nth-child(6){transform:translateX(20px)}
+.grid.circle .cell:nth-child(8){transform:translateY(20px)}
+
+.grid.long{grid-template-columns:repeat(8,120px)}
+.grid.long .cell:nth-child(9){grid-column:4/6}
+
+.grid.pyramid{grid-template-columns:repeat(5,120px)}
+.grid.pyramid .cell:nth-child(6){grid-column:2/5}
+.grid.pyramid .cell:nth-child(9){grid-column:3}

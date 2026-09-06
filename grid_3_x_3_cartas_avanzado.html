@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Grid Cartas Dinámico</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <div class="sidebar">
+        <h3>Torres</h3>
+        <div class="card-list" data-folder="torres"></div>
+        <h3>Héroes</h3>
+        <div class="card-list" data-folder="heroes"></div>
+        <h3>Evos</h3>
+        <div class="card-list" data-folder="evos"></div>
+        <h3>Normales</h3>
+        <div class="card-list" data-folder="normales"></div>
+    </div>
+
+    <div class="main">
+        <div class="controls">
+            <button onclick="setLayout('normal')">Normal</button>
+            <button onclick="setLayout('circle')">Circular</button>
+            <button onclick="setLayout('long')">2x8 + centro</button>
+            <button onclick="setLayout('pyramid')">Pirámide</button>
+        </div>
+        <div class="grid normal" id="grid"></div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>

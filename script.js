@@ -187,8 +187,8 @@ function applyLayout(layout){
     const transforms={1:"translateY(-20px)",3:"translateX(-20px)",5:"translateX(20px)",7:"translateY(20px)"};
     [...board.children].forEach((c,i)=>c.style.transform=transforms[i]||"");
   } else if(layout==="long"){
-    board.style.gridTemplateColumns="repeat(4,var(--card-w))";
-    board.style.gridTemplateRows="repeat(3,var(--card-h))";
+    board.style.gridTemplateColumns="repeat(5,var(--card-w))";
+    //board.style.gridTemplateRows="repeat(3,var(--card-h))";
     // Coloca explícitamente las 8 cartas normales en 2 filas de 4...
     [...board.children].forEach((c,i)=>{
       c.style.transform="";

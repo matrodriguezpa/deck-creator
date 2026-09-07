@@ -470,15 +470,24 @@ search.addEventListener("input",renderSidebar);
 document.querySelectorAll("[data-layout]").forEach(b=>b.addEventListener("click",()=>setLayout(b.dataset.layout)));
 
 const sidebarEl = document.getElementById("sidebar");
-const toggleSidebarBtn = document.getElementById("toggleSidebar");
-if(sidebarEl && toggleSidebarBtn){
-  toggleSidebarBtn.addEventListener("click", ()=>{
-    const collapsed = sidebarEl.classList.toggle("collapsed");
-    toggleSidebarBtn.setAttribute("aria-expanded", String(!collapsed));
-    toggleSidebarBtn.querySelector(".toggle-label").textContent = collapsed ? "Mostrar cartas" : "Ocultar cartas";
-    toggleSidebarBtn.querySelector(".toggle-icon").textContent = collapsed ? "▸" : "▾";
-  });
+const openSidebarBtn = document.getElementById("openSidebar");
+const closeSidebarBtn = document.getElementById("closeSidebar");
+const sidebarBackdrop = document.getElementById("sidebarBackdrop");
+
+function openSidebar(){
+  sidebarEl.classList.add("open");
+  sidebarBackdrop.classList.add("show");
+  openSidebarBtn?.setAttribute("aria-expanded", "true");
 }
+function closeSidebar(){
+  sidebarEl.classList.remove("open");
+  sidebarBackdrop.classList.remove("show");
+  openSidebarBtn?.setAttribute("aria-expanded", "false");
+}
+
+openSidebarBtn?.addEventListener("click", openSidebar);
+closeSidebarBtn?.addEventListener("click", closeSidebar);
+sidebarBackdrop?.addEventListener("click", closeSidebar);
 
 document.getElementById("clear").addEventListener("click",()=>{
   state.slots = Array(9).fill(null);

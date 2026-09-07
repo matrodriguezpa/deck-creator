@@ -19,6 +19,7 @@
                 <button id="toggleSidebar" class="sidebar-toggle" aria-expanded="true" aria-controls="sidebarBody">
                     <span class="toggle-icon">▾</span><span class="toggle-label">Ocultar cartas</span>
                 </button>
+                <button id="closeSidebar" class="sidebar-close" aria-label="Cerrar cartas">✕</button>
             </div>
 
             <div class="sidebar-body" id="sidebarBody">
@@ -46,9 +47,12 @@
 
         <main class="main">
             <div class="toolbar">
-                <div>
-                    <strong id="layoutTitle">Normal · 3×3</strong>
-                    <div class="status" id="status">Arrastra cartas al tablero. Se guardan en localStorage.</div>
+                <div class="toolbar-title">
+                    <button id="openSidebar" class="menu-toggle" aria-label="Mostrar cartas" aria-expanded="false" aria-controls="sidebar">☰</button>
+                    <div>
+                        <strong id="layoutTitle">Normal · 3×3</strong>
+                        <div class="status" id="status">Arrastra cartas al tablero. Se guardan en localStorage.</div>
+                    </div>
                 </div>
                 <div class="actions">
                     <button class="layout-btn active" data-layout="normal">Normal</button>

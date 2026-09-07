@@ -10,18 +10,38 @@
 
 <body>
     <div class="app">
-        <aside class="sidebar">
-            <div class="brand">Cartas de Clash Royale</div>
-            <div class="small">Snapshot de RoyaleAPI · Ranked · 7d · Rating</div>
-            <div class="search"><input id="search" placeholder="Buscar carta…"></div>
-            <div class="filters">
-                <button class="filter active" data-filter="all">Todas</button>
-                <button class="filter" data-filter="hero">Héroes</button>
-                <button class="filter" data-filter="evo">Evos</button>
-                <button class="filter" data-filter="tower">Torres</button>
-                <button class="filter" data-filter="spell">Hechizos</button>
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-head">
+                <div>
+                    <div class="brand">Cartas de Clash Royale</div>
+                    <div class="small">Snapshot de RoyaleAPI · Ranked · 7d · Rating</div>
+                </div>
+                <button id="toggleSidebar" class="sidebar-toggle" aria-expanded="true" aria-controls="sidebarBody">
+                    <span class="toggle-icon">▾</span><span class="toggle-label">Ocultar cartas</span>
+                </button>
             </div>
-            <div id="sideGrid" class="side-grid"></div>
+
+            <div class="sidebar-body" id="sidebarBody">
+                <div class="drag-hint">
+                    <div class="drag-hint-demo" aria-hidden="true">
+                        <div class="demo-slot"></div>
+                        <div class="demo-card"></div>
+                        <div class="demo-hand">👆</div>
+                    </div>
+                    <p class="drag-hint-text"><strong>¡Arrastra las cartas!</strong> Mantén pulsada una carta y
+                        suéltala sobre el tablero.</p>
+                </div>
+
+                <div class="search"><input id="search" placeholder="Buscar carta…"></div>
+                <div class="filters">
+                    <button class="filter active" data-filter="all">Todas</button>
+                    <button class="filter" data-filter="hero">Héroes</button>
+                    <button class="filter" data-filter="evo">Evos</button>
+                    <button class="filter" data-filter="tower">Torres</button>
+                    <button class="filter" data-filter="spell">Hechizos</button>
+                </div>
+                <div id="sideGrid" class="side-grid"></div>
+            </div>
         </aside>
 
         <main class="main">

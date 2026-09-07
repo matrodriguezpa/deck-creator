@@ -134,20 +134,65 @@ function wireDrag(node, card, source){
     dragging = null;
   });
 
-  let start = null;
+  let ghost = null;
+  let hoverCell = null;
+
+  function clearHover(){
+    if(hoverCell){ hoverCell.classList.remove("dragover"); hoverCell = null; }
+  }
+
   node.addEventListener("pointerdown", e=>{
     if(e.pointerType!=="touch") return;
-    start = {x:e.clientX,y:e.clientY};
     node.setPointerCapture?.(e.pointerId);
     touchDrag = {card, source, node};
+    node.classList.add("dragging");
+    ghost = createGhost(node, e.clientX, e.clientY);
   });
-  node.addEventListener("pointerup", e=>{
-    if(e.pointerType!=="touch" || !touchDrag) return;
+
+  node.addEventListener("pointermove", e=>{
+    if(e.pointerType!=="touch" || !touchDrag || touchDrag.node!==node) return;
+    e.preventDefault();
+    moveGhost(ghost, e.clientX, e.clientY);
+    const el = document.elementFromPoint(e.clientX, e.clientY);
+    const cell = el?.closest(".cell");
+    if(cell!==hoverCell){
+      clearHover();
+      if(cell){ cell.classList.add("dragover"); hoverCell = cell; }
+    }
+  });
+
+  function endTouchDrag(e){
+    if(e.pointerType!=="touch" || !touchDrag || touchDrag.node!==node) return;
     const el = document.elementFromPoint(e.clientX,e.clientY);
     const cell = el?.closest(".cell");
     if(cell) placeIntoCell(cell, card, source, node);
+    clearHover();
+    if(ghost){ ghost.remove(); ghost = null; }
+    node.classList.remove("dragging");
     touchDrag = null;
-  });
+  }
+  node.addEventListener("pointerup", endTouchDrag);
+  node.addEventListener("pointercancel", endTouchDrag);
+}
+
+function createGhost(node, x, y){
+  const ghost = document.createElement("div");
+  ghost.className = "drag-ghost";
+  const img = node.querySelector("img");
+  if(img && img.isConnected){
+    ghost.appendChild(img.cloneNode(true));
+  } else {
+    ghost.style.background = "linear-gradient(135deg,#30364a,#171b25)";
+  }
+  document.body.appendChild(ghost);
+  moveGhost(ghost, x, y);
+  return ghost;
+}
+
+function moveGhost(ghost, x, y){
+  if(!ghost) return;
+  ghost.style.left = x + "px";
+  ghost.style.top = y + "px";
 }
 
 function createCells(layout){
@@ -423,6 +468,17 @@ document.querySelectorAll(".filter").forEach(b=>b.addEventListener("click",()=>{
 
 search.addEventListener("input",renderSidebar);
 document.querySelectorAll("[data-layout]").forEach(b=>b.addEventListener("click",()=>setLayout(b.dataset.layout)));
+
+const sidebarEl = document.getElementById("sidebar");
+const toggleSidebarBtn = document.getElementById("toggleSidebar");
+if(sidebarEl && toggleSidebarBtn){
+  toggleSidebarBtn.addEventListener("click", ()=>{
+    const collapsed = sidebarEl.classList.toggle("collapsed");
+    toggleSidebarBtn.setAttribute("aria-expanded", String(!collapsed));
+    toggleSidebarBtn.querySelector(".toggle-label").textContent = collapsed ? "Mostrar cartas" : "Ocultar cartas";
+    toggleSidebarBtn.querySelector(".toggle-icon").textContent = collapsed ? "▸" : "▾";
+  });
+}
 
 document.getElementById("clear").addEventListener("click",()=>{
   state.slots = Array(9).fill(null);
